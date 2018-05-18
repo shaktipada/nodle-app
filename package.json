@@ -1,0 +1,9 @@
+{
+  "name": "nodle-app",
+  "version": "1.0.0",
+  "description": "Backend for nodle android app",
+  "main": "index.js",
+  "repository": "https://github.com/shaktipada/nodle-app.git",
+  "author": "Shaktipada-M <s.mohanty.006@gmail.com>",
+  "license": "MIT"
+}

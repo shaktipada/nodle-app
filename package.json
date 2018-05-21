@@ -5,5 +5,19 @@
   "main": "index.js",
   "repository": "https://github.com/shaktipada/nodle-app.git",
   "author": "Shaktipada-M <s.mohanty.006@gmail.com>",
-  "license": "MIT"
+  "license": "MIT",
+  "dependencies": {
+    "bluebird": "^3.5.1",
+    "body-parser": "^1.18.3",
+    "config": "^1.30.0",
+    "express": "^4.16.3",
+    "express-mung": "^0.5.0",
+    "geolib": "^2.0.24",
+    "helmet": "^3.12.1",
+    "lodash": "^4.17.10",
+    "method-override": "^2.3.10",
+    "moment": "^2.22.1",
+    "mongoose": "^5.1.1",
+    "randomstring": "^1.1.5"
+  }
 }

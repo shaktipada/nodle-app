@@ -1,0 +1,9 @@
+{
+    "mode": "production",
+    "mongo": {
+        "host": "mongodb://admin:admin@ds145892.mlab.com:45892/noodlecount"
+    },
+    "app": {
+        "port": "5678"
+    }
+}

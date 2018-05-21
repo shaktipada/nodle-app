@@ -1,0 +1,9 @@
+{
+    "mode": "staging",
+    "mongo": {
+        "host": "mongodb://localhost/nodle-app"
+    },
+    "app": {
+        "port": "5678"
+    }
+}

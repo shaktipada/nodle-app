@@ -42,8 +42,8 @@ class User {
                 if (!request.query.contest_id) reject({ "status": 404, "error": "contest id not found" });
                 else params['contest_id'] = request.query.contest_id;
 
-                let User = mongoose.model('User');
-                let Contest = mongoose.model('Contest');
+                const User = mongoose.model('User');
+                const Contest = mongoose.model('Contest');
                 console.log(params);
                 Contest.findOne({ contest_id: params.contest_id }, { "referral": 1 }, (err, referral) => {
                     if (err) throw err;

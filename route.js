@@ -28,4 +28,11 @@ router.post('/user/register', (request, response, next) => {
     });
 });
 
+router.get('/user/referral', (request, response, next) => {
+    __user.getReferral(request, response, next).then((result) => {
+        return response.send(result);
+    }).catch((error) => {
+        return response.send(error);
+    });
+});
 module.exports = router;

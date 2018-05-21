@@ -18,7 +18,10 @@ class Contest {
                 if (!params.referral.title) reject({ "status": 404, "error": "referral title not found" });
                 if (!params.referral.description) reject({ "status": 404, "error": "referral description not found" });
                 if (!params.referral.share_message) reject({ "status": 404, "error": "referral share message not found" });
+                
                 if (!params.referral.uri) reject({ "status": 404, "error": "referral uri not found" });
+                else params.referral.uri = params.referral.uri.replace(/,+$/, "");
+                
                 if (!params.referral.is_enabled) reject({ "status": 404, "error": "referral is enabled not found" });
                 if (!params.is_active) reject({ "status": 404, "error": "is active not found" });
                 if ((!params.latitude || !params.longitude) && params.radius) reject({ "status": 404, "error": "latitude & longitude not found" });

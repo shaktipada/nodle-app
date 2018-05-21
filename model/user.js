@@ -57,7 +57,11 @@ class User {
                         }],
                         default: null
                     },
-                    referral_id: String
+                    referral_code: String,
+                    referred_by_code: {
+                        type: String,
+                        default: null
+                    }
                 }
             )
         );
@@ -122,7 +126,8 @@ class User {
                             userModel.current_location = userModel.registered_location;
                             userModel.firebase_id = params.firebase_id;
                             userModel.imei_number.push(parseInt(params.imei_number));
-                            userModel.referral_id = new mongoose.Types.ObjectId();
+                            userModel.referral_code = new mongoose.Types.ObjectId();
+                            if (params.hasOwnProperty('referred_by_code') && params.referred_by_code) userModel.referred_by_code = params.referred_by_code;
                             userModel.user_id = new mongoose.Types.ObjectId();
                             userModel.nodle_id.push(params.nodle_id);
                             __this.getContestByUserCurrentLocation(userModel.current_location).then((contest_id) => {
@@ -145,7 +150,7 @@ class User {
                                             'username': data.username,
                                             'password': data.password,
                                             'firebase_id': data.firebase_id,
-                                            'referral_id': data.referral_id,
+                                            'referral_code': data.referral_code,
                                             'user_id': data.user_id,
                                             'registered_location': data.registered_location,
                                             'current_location': data.current_location

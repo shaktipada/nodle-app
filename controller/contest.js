@@ -18,10 +18,10 @@ class Contest {
                 if (!params.referral.title) reject({ "status": 404, "error": "referral title not found" });
                 if (!params.referral.description) reject({ "status": 404, "error": "referral description not found" });
                 if (!params.referral.share_message) reject({ "status": 404, "error": "referral share message not found" });
-                
+
                 if (!params.referral.uri) reject({ "status": 404, "error": "referral uri not found" });
                 else params.referral.uri = params.referral.uri.replace(/,+$/, "");
-                
+
                 if (!params.referral.is_enabled) reject({ "status": 404, "error": "referral is enabled not found" });
                 if (!params.is_active) reject({ "status": 404, "error": "is active not found" });
                 if ((!params.latitude || !params.longitude) && params.radius) reject({ "status": 404, "error": "latitude & longitude not found" });
@@ -36,6 +36,83 @@ class Contest {
                     console.log("controller:error", error);
                     reject(error);
                 });
+            } catch (error) {
+                console.error(error);
+                reject(error);
+            }
+        });
+    }
+
+    updateContest(request, response, next) {
+        return new Promise((resolve, reject) => {
+            try {
+                let params = request.body;
+                if (!params.user) reject({ "status": 404, "error": "user not found" });
+                if (!params.contest_id) reject({ "status": 404, "error": "contest id not found" });
+                __contest.updateContest(params).then((result) => {
+                    resolve(result);
+                }).catch((error) => {
+                    console.log("controller:error", error);
+                    reject(error);
+                });
+            } catch (error) {
+                console.error(error);
+                reject(error);
+            }
+        });
+    }
+
+    getContestById(request, response, next) {
+        return new Promise((resolve, reject) => {
+            try {
+                let params = request.query;
+                if (!params.contest_id) reject({ "status": 404, "error": "contest id not found" });
+                __contest.getContestById(params).then((result) => {
+                    resolve(result);
+                }).catch((error) => {
+                    console.log("controller:error", error);
+                    reject(error);
+                });
+            } catch (error) {
+                console.error(error);
+                reject(error);
+            }
+        });
+    }
+
+    getContests(request, response, next) {
+        return new Promise((resolve, reject) => {
+            try {
+                __contest.getContests().then((result) => {
+                    resolve(result);
+                }).catch((error) => {
+                    console.log("controller:error", error);
+                    reject(error);
+                });
+            } catch (error) {
+                console.error(error);
+                reject(error);
+            }
+        });
+    }
+
+    getActiveContestByUserCurrentLocation(request, response, next) {
+        return new Promise((resolve, reject) => {
+            try {
+                let params = request.query;
+                if (!params.lat || !params.long) reject({ "status": 404, "error": "latitude & longitude not found" });
+                else {
+                    params = {
+                        latitude: params.lat,
+                        longitude: params.long
+                    };
+                    __contest.getActiveContestByUserCurrentLocation(params).then((result) => {
+                        resolve(result);
+                    }).catch((error) => {
+                        console.log("controller:error", error);
+                        reject(error);
+                    });
+                }
             } catch (error) {
                 console.error(error);
                 reject(error);

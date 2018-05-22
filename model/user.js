@@ -24,6 +24,11 @@ class User {
                     },
                     user_id: String,
                     password: String,
+                    referral_code: String,
+                    referred_by_code: {
+                        type: String,
+                        default: null
+                    },
                     registered_location: {
                         type: {
                             latitude: Number,
@@ -55,11 +60,6 @@ class User {
                             },
                             _id: false
                         }],
-                        default: null
-                    },
-                    referral_code: String,
-                    referred_by_code: {
-                        type: String,
                         default: null
                     }
                 }
@@ -101,6 +101,12 @@ class User {
                 console.error(error);
                 reject({ "error": error, status: 400 });
             }
+        });
+    }
+    updateUser(params) {
+        let __this = this;
+        return new Promise((resolve, reject) => {
+
         });
     }
 

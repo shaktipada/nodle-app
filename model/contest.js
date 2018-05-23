@@ -19,18 +19,42 @@ class Contest {
                         index: true
                     },
                     register_text: {
-                        pre: String,
-                        post: String,
+                        type: {
+                            pre: {
+                                type: String,
+                                default: null
+                            },
+                            post: {
+                                type: String,
+                                default: null
+                            },
+                        },
+                        default: {}
                     },
                     referral: {
-                        title: String,
-                        description: String,
-                        share_message: String,
-                        uri: String,
-                        is_enabled: {
-                            type: Boolean,
-                            default: true
-                        }
+                        type: {
+                            title: {
+                                type: String,
+                                default: null
+                            },
+                            description: {
+                                type: String,
+                                default: null
+                            },
+                            share_message: {
+                                type: String,
+                                default: null
+                            },
+                            uri: {
+                                type: String,
+                                default: null
+                            }
+                        },
+                        default: {}
+                    },
+                    referral_enabled: {
+                        type: Boolean,
+                        default: false
                     },
                     location: {
                         type: {
@@ -85,14 +109,14 @@ class Contest {
                         let contestModel = new __this.ContestModel;
                         contestModel.display_name = params.display_name;
                         contestModel.contest_id = new mongoose.Types.ObjectId();
-                        Object.assign(contestModel.register_text, params.register_text);
                         Object.assign(contestModel.is_active, params.is_active);
-                        Object.assign(contestModel.referral, params.referral);
-                        Object.assign(contestModel.created, {
-                            date: new Date(),
-                            by: params.user
-                        });
+                        Object.assign(contestModel.created, { date: new Date(), by: params.user });
                         Object.assign(contestModel.updated, contestModel.created);
+                        if (params.register_text) Object.assign(contestModel.register_text, params.register_text);
+                        if (params.referral) {
+                            Object.assign(contestModel.referral, params.referral);
+                            contestModel.referral_enabled = true;
+                        }
                         if (params.latitude && params.longitude && params.radius) {
                             Object.assign(contestModel.location, {
                                 latitude: parseFloat(params.latitude),
@@ -153,8 +177,7 @@ class Contest {
                                             set_query.referral.share_message = params.referral.share_message;
                                         if (params.referral.hasOwnProperty('uri') && params.referral.uri)
                                             set_query.referral.uri = params.referral.uri.replace(/,+$/, "");
-                                        if (params.referral.hasOwnProperty('is_enabled'))
-                                            set_query.referral.is_enabled = params.referral.is_enabled;
+                                        if (!set_query.referral_enabled) set_query.referral_enabled = true;
                                     }
                                     if (params.hasOwnProperty('latitude')) set_query.location.latitude = parseFloat(params.latitude);
                                     if (params.hasOwnProperty('longitude')) set_query.location.longitude = parseFloat(params.longitude);
@@ -263,7 +286,7 @@ class Contest {
                         console.log('Mongoose connected');
                         const Contest = mongoose.model('Contest');
                         Contest.find(
-                            { $and: [{ location: { $ne: null } }, { is_active: true }, { "referral.is_enabled": true }] },
+                            { $and: [{ location: { $ne: null } }, { is_active: true }, { referral_enabled: true }] },
                             { _id: 0, contest_id: 1, register_text: 1, display_name: 1, location: 1 },
                             (error, contest_docs) => {
                                 mongoose.connection.close(() => { console.log('Mongoose disconnected'); });
@@ -288,6 +311,7 @@ class Contest {
                                                 ) / 1000
                                             ).toFixed(2)
                                         );
+                                        console.log(distance, contest.location.radius);
                                         if (distance <= contest.location.radius) {
                                             contests.push(contest);
                                             is_valid = true;

@@ -82,6 +82,20 @@ router.get('/contest', (request, response, next) => {
 });
 
 
+router.get('/user/id', (request, response, next) => {
+    __user.getUserById(request, response, next).then((result) => {
+        return response.send(result);
+    }).catch((error) => {
+        return response.send(error);
+    });
+});
+router.get('/user', (request, response, next) => {
+    __user.getUsers(request, response, next).then((result) => {
+        return response.send(result);
+    }).catch((error) => {
+        return response.send(error);
+    });
+});
 router.post('/user/register', (request, response, next) => {
     __user.createUser(request, response, next).then((result) => {
         return response.send(result);
@@ -91,6 +105,15 @@ router.post('/user/register', (request, response, next) => {
 });
 router.get('/user/referral', (request, response, next) => {
     __user.getReferral(request, response, next).then((result) => {
+        return response.send(result);
+    }).catch((error) => {
+        return response.send(error);
+    });
+});
+
+
+router.get('/leaderboard', (request, response, next) => {
+    __user.getLeaderboard(request, response, next).then((result) => {
         return response.send(result);
     }).catch((error) => {
         return response.send(error);

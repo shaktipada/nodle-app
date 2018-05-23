@@ -1,6 +1,8 @@
 'use strict';
 
+const _ = require('lodash');
 const mongoose = require('mongoose');
+const appConfig = require('config');
 const Promise = require('bluebird');
 
 const __user = new (require('../model/user'))();
@@ -45,12 +47,12 @@ class User {
                 const User = mongoose.model('User');
                 const Contest = mongoose.model('Contest');
                 console.log(params);
-                Contest.findOne({ contest_id: params.contest_id }, { "referral": 1 }, (err, referral) => {
+                Contest.findOne({ contest_id: params.contest_id, referral_enabled: true }, { referral: 1 }, (err, referral) => {
                     if (err) throw err;
                     if (!referral) reject({ "status": 404, "error": "referral not found" });
                     else {
                         referral = referral.referral;
-                        User.findOne({ username: params.username }, { "referral_code": 1 }, (err, referral_code) => {
+                        User.findOne({ username: params.username }, { referral_code: 1 }, (err, referral_code) => {
                             if (err) throw err;
                             if (!referral) reject({ "status": 404, "error": "referral code not found" });
                             else {
@@ -71,141 +73,109 @@ class User {
         });
     }
 
-    getLeaderboardById(request, response, next) {
+    getUserById(request, response, next) {
+        return new Promise((resolve, reject) => {
+            try {
+                let params = request.query;
+                if (!params.user_id) reject({ "status": 404, "error": "contest id not found" });
+                __user.getUserById(params).then((result) => {
+                    resolve(result);
+                }).catch((error) => {
+                    console.log("controller:error", error);
+                    reject(error);
+                });
+            } catch (error) {
+                console.error(error);
+                reject(error);
+            }
+        });
+    }
+
+    getUsers(request, response, next) {
+        return new Promise((resolve, reject) => {
+            try {
+                __user.getUsers().then((result) => {
+                    resolve(result);
+                }).catch((error) => {
+                    console.log("controller:error", error);
+                    reject(error);
+                });
+            } catch (error) {
+                console.error(error);
+                reject(error);
+            }
+        });
+    }
+
+    getLeaderboard(request, response, next) {
         return new Promise((resolve, reject) => {
             try {
 
                 let contest_id = null;
                 if (!request.query.hasOwnProperty('contest_id') || !request.query.contest_id)
-                    reject({ "status": 404, "error": "contest id not found" });
+                    reject({ status: 404, data: { error: "contest id not found", is_valid: false } });
                 else
                     contest_id = request.query.contest_id;
 
                 let username = null;
-                if (!request.headers.hasOwnProperty('username') || !request.headers.username)
-                    reject({ "status": 404, "error": "contest id not found" });
+                if (!request.query.hasOwnProperty('username') || !request.query.username)
+                    reject({ status: 404, data: { error: "username not found", is_valid: false } });
                 else
-                    username = request.headers.username;
+                    username = request.query.username;
 
-                const User = mongoose.model('User');
-                const Contest = mongoose.model('Contest');
-                Contest.findOne({ contest_id: contest_id, "referral.is_enabled": true }, (err, contest_docs) => {
-                    if (err) throw err;
-                    if (!contest_docs) {
-                        User.aggregate([
-                            {
-                                $match: {
-                                    is_active: true
-                                }
-                            }, {
-                                $unwind: "$contest"
-                            }, {
-                                $group: {
-                                    _id: "$username",
-                                    nodle_count: { $sum: "$contest.count" }
-                                }
-                            }, {
-                                $group: {
-                                    _id: 0,
-                                    leaderboard: {
-                                        $push: {
-                                            username: "$_id",
-                                            nodle_count: "$nodle_count"
-                                        }
-                                    }
-                                }
-                            },
-                            {
-                                $project: {
-                                    _id: 0,
-                                    leaderboard: 1
-                                }
-                            }
-                        ], (err, user_docs) => {
-                            if (err) throw err;
-                            if (!user_docs) user_docs = { "leaderboard": [] };
-                            User.aggregate([
-                                {
-                                    $match: {
-                                        is_active: true,
-                                        username: username,
-                                    }
-                                }, {
-                                    $unwind: "$contest"
-                                }, {
-                                    $group: {
-                                        _id: "$username",
-                                        count: { $sum: "$contest.count" }
-                                    }
-                                }
-                            ], (err, current_user_docs) => {
-                                if (err) throw err;
-                                if (!current_user_docs) reject({ "status": 404, "error": "user data not found" });
-                                else {
-                                    current_user_docs['username'] = current_user_docs._id;
-                                    delete current_user_docs._id;
-                                    resolve({
-                                        user: current_user_docs,
-                                        leaderboard: user_docs.leaderboard
-                                    });
-                                }
-
-                            });
-                        });
+                mongoose.connect(appConfig.mongo.host, function (error) {
+                    if (error) {
+                        console.log(error);
+                        reject({ status: 400, data: { error, is_valid: false } });
                     } else {
-                        User.aggregate([
-                            {
-                                $match: {
-                                    is_active: true,
-                                    contest: { $elemMatch: { contest_id: contest_id } }
-                                }
-                            }, {
-                                $unwind: "$contest"
-                            }, {
-                                $group: {
-                                    _id: 0,
-                                    leaderboard: { $push: { username: "$username", nodle_count: "$contest.count" } }
-                                }
-                            }, {
-                                $project: {
-                                    _id: 0,
-                                    leaderboard: 1
+                        const User = mongoose.model('User');
+                        const Contest = mongoose.model('Contest');
+                        Contest.findOne({ contest_id: contest_id, referral_enabled: true }, (error, contest_docs) => {
+                            if (error) {
+                                console.log(error);
+                                reject({ status: 400, data: { error, is_valid: false } });
+                            } else {
+                                if (!contest_docs) {
+                                    User.find(
+                                        { is_active: true },
+                                        { _id: 0, username: 1, contest: 1 },
+                                        (error, user_docs) => {
+                                            if (error) {
+                                                console.log(error);
+                                                reject({ status: 400, data: { error, is_valid: false } });
+                                            } else {
+                                                if (!user_docs) user_docs = { "leaderboard": [] };
+                                                else {
+                                                    let leaderboard = []
+                                                    let user_data = {};
+                                                    _.map(user_docs, user => {
+                                                        let data = {
+                                                            username: user.username,
+                                                            nodle_count: Object.values(user.contest).reduce((acc, val) => { return acc + val; })
+                                                        };
+                                                        leaderboard.push(data);
+                                                        if (username === user.username) Object.assign(user_data, data);
+                                                    });
+                                                    leaderboard = _.orderBy(leaderboard, ['nodle_count'], ['desc']);
+                                                        resolve({
+                                                        status: 200,
+                                                        data: {
+                                                            is_valid: true,
+                                                            user: user_data,
+                                                            leaderboard: leaderboard
+                                                        }
+                                                    });
+                                                }
+                                            }
+                                        }
+                                    );
+                                } else {
+                                    console.log("need to impement")
                                 }
                             }
-                        ], (err, user_docs) => {
-                            if (err) throw err;
-                            if (!user_docs) user_docs = { "leaderboard": [] };
-                            User.aggregate([
-                                {
-                                    $match: {
-                                        is_active: true,
-                                        username: username,
-                                        "contest.contest_id": { $in: [contest_id] }
-                                    }
-                                }, {
-                                    $unwind: "$contest"
-                                }, {
-                                    $group: {
-                                        _id: "$username",
-                                        "$username": { nodle_count: "$contest.count"}
-                                    }
-                                }
-                            ], (err, current_user_docs) => {
-                                if (err) throw err;
-                                if (!current_user_docs) reject({ "status": 404, "error": "user data not found" });
-                                else {
-                                    current_user_docs['username'] = current_user_docs._id;
-                                    delete current_user_docs._id;
-                                    resolve({
-                                        user: current_user_docs,
-                                        leaderboard: user_docs.leaderboard
-                                    });
-                                }
-
-                            });
                         });
                     }
-                })
+                });
             } catch (error) {
                 console.error(error);
                 reject(error);

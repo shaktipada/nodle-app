@@ -19,7 +19,7 @@ class Configuration {
                         if (!detail_docs) resolve({ status: 200, data: { is_valid: false } });
                         else Contest.find(
                             { is_active: true },
-                            { _id: 0, display_name: 1, contest_id: 1, register_text: 1, "referral.is_enabled": 1 },
+                            { _id: 0, display_name: 1, contest_id: 1, register_text: 1, referral_enabled: 1 },
                             { sort: { location: 1 } },
                             (error, contest_docs) => {
                                 if (error) {

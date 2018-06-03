@@ -1,7 +1,7 @@
 {
     "mode": "development",
     "mongo": {
-        "host": "mongodb://127.0.0.1:27017/nodle-app"
+        "host": "mongodb://localhost/nodle-app"
     },
     "app": {
         "port": "5678"

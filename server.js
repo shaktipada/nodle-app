@@ -31,21 +31,6 @@ app.use(`/api`, require("./route"));
 var mongoose = require('mongoose');
 mongoose.connect('mongodb://localhost/nodle-app');
 
-/* app.use(function (req, res, next) {
-    console.log(">>>>>>>>>>>>");
-    var db = mongoose.connection;
-    db.on('error', console.error.bind(console, 'connection error:'));
-    console.log("h1");
-    db.once('open', function callback() {
-        console.log("h");
-    });
-    res.render('test');
-    next();
-});
-
-app.get('/', function (req, res, next) {
-    res.send({ "test": "test" });
-}) */
 app.all('*', function (req, res) {
     console.log("url not found", req.url);
     return res.send({ 'status': 404, 'error': 'Resource Not Found' });
@@ -92,6 +77,25 @@ if (cluster.isMaster) {
         var addr = server.address();
         var bind = (typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port);
         console.log(`nodle-app ${appConfig.mode} mode running, listening on ${bind}`);
+        (() => {
+            const dbURI = appConfig.mongo.host;
+            mongoose.connect(dbURI);
+            mongoose.connection.on('connected', () => {
+                console.log("Mongoose default connection is open to ", dbURI);
+            });
+/*             mongoose.connection.on('error', (err) => {
+                console.log("Mongoose default connection has occured " + err + " error");
+            });
+            mongoose.connection.on('disconnected', () => {
+                console.log("Mongoose default connection is disconnected");
+            });
+            process.on('SIGINT', () => {
+                mongoose.connection.close(() => {
+                    console.log("Mongoose default connection is disconnected due to application termination");
+                    //process.exit(0)
+                });
+            }); */
+        })();
     });
 }
 

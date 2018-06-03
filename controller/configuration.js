@@ -37,7 +37,7 @@ class Configuration {
                                             result.contest.push({
                                                 register_text_pre: contest.register_text.pre,
                                                 register_text_post: contest.register_text.post,
-                                                is_referral_enabled: contest.referral.is_enabled,
+                                                is_referral_enabled: contest.referral_enabled,
                                                 display_name: contest.display_name,
                                                 contest_id: contest.contest_id
                                             });

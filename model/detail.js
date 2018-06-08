@@ -30,7 +30,7 @@ class Detail {
                                     type: String,
                                     default: null
                                 },
-                                supported_ver: {
+                                min_supported_ver: {
                                     type: String,
                                     default: null
                                 }

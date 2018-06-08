@@ -21,7 +21,7 @@ class Detail {
                             reject({ "status": 404, "error": "device type not found" });
                         if (!device.current_ver)
                             reject({ "status": 404, "error": "current version not found" });
-                        if (!device.supported_ver)
+                        if (!device.min_supported_ver)
                             reject({ "status": 404, "error": "supported version not found" });
                     });
                 }

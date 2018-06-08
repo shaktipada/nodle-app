@@ -16,7 +16,7 @@ class Configuration {
                     reject({ "status": 404, "error": "Platform not found" });
                 const Detail = mongoose.model('Detail');
                 const Contest = mongoose.model('Contest');
-                Detail.findOne({ is_active: true }, { _id: 0, intro_text: 1, legal_uri: 1, "updated.date": 1 }, (error, detail_docs) => {
+                Detail.findOne({ is_active: true }, { _id: 0, intro_text: 1, legal_uri: 1, device_conf: 1, "updated.date": 1 }, (error, detail_docs) => {
                     if (error) {
                         console.error(error);
                         reject({ status: 400, data: { error, is_valid: false } });

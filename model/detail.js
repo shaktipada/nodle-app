@@ -1,5 +1,6 @@
 'use strict';
 
+const _ = require('lodash');
 const Promise = require('bluebird');
 const mongoose = require('mongoose');
 const appConfig = require('config');
@@ -15,7 +16,28 @@ class Detail {
                     legal_uri: String,
                     is_active: {
                         type: Boolean,
-                        default: true
+                        default: false
+                    },
+                    device_conf: {
+                        type: mongoose.Schema.Types.Mixed,
+                        /* [{
+                            type: {
+                                device_type: {
+                                    type: String,
+                                    default: null
+                                },
+                                current_ver: {
+                                    type: String,
+                                    default: null
+                                },
+                                supported_ver: {
+                                    type: String,
+                                    default: null
+                                }
+                            },
+                            default: null
+                        }], */
+                        default: []
                     },
                     created: {
                         date: {
@@ -51,6 +73,7 @@ class Detail {
                         detailModel.intro_text = params.intro_text;
                         detailModel.legal_uri = params.legal_uri;
                         detailModel.is_active = params.is_active;
+                        if (params.hasOwnProperty('device_conf') && params.device_conf.length > 0) detailModel.device_conf = params.device_conf;
                         Object.assign(detailModel.created, {
                             date: new Date(),
                             by: params.user
@@ -117,6 +140,7 @@ class Detail {
                                     if (params.hasOwnProperty('intro_text')) set_query.intro_text = params.intro_text;
                                     if (params.hasOwnProperty('legal_uri')) set_query.legal_uri = params.legal_uri;
                                     if (params.hasOwnProperty('is_active')) set_query.is_active = params.is_active;
+                                    if (params.hasOwnProperty('device_conf') && params.device_conf.length > 0) detailModel.device_conf = params.device_conf;
                                     if (set_query.is_active)
                                         Detail.update(
                                             { is_active: true },
@@ -177,7 +201,7 @@ class Detail {
                         const Detail = mongoose.model('Detail');
                         Detail.findOne(
                             { detail_id: params.detail_id },
-                            { _id: 0, __v: 0, created: 0, updated: 0 },
+                            { _id: 0, __v: 0, created: 0 },
                             (error, detail_docs) => {
                                 mongoose.connection.close(() => { console.log('Mongoose disconnected'); });
                                 if (error) {
@@ -210,7 +234,7 @@ class Detail {
                         const Detail = mongoose.model('Detail');
                         Detail.find(
                             {},
-                            { _id: 0, __v: 0, created: 0, updated: 0 },
+                            { _id: 0, __v: 0, created: 0 },
                             (error, detail_docs) => {
                                 mongoose.connection.close(() => { console.log('Mongoose disconnected'); });
                                 if (error) {

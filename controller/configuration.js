@@ -24,7 +24,7 @@ class Configuration {
                         if (!detail_docs) resolve({ status: 200, data: { is_valid: false } });
                         else Contest.find(
                             { is_active: true },
-                            { _id: 0, display_name: 1, contest_id: 1, register_text: 1, referral_enabled: 1, "updated.date": 1 },
+                            { _id: 0, location: 1, referral: 1, display_name: 1, contest_id: 1, register_text: 1, referral_enabled: 1, "updated.date": 1 },
                             { sort: { location: 1 } },
                             (error, contest_docs) => {
                                 if (error) {
@@ -33,22 +33,27 @@ class Configuration {
                                 } else {
                                     if (!contest_docs) resolve({ status: 200, data: { is_valid: false } });
                                     else {
+                                        let updated_date = moment(new Date(contest_docs[0].updated.date.toString()), "DD-MM-YYYY HH:mm:ss");
                                         let result = {
                                             intro_text: detail_docs.intro_text,
                                             legal_uri: detail_docs.legal_uri,
-                                            updated_timestamp: moment(contest_docs[0].updated.date).format("DD-MM-YYYY hh:mm:s"),
+                                            updated_timestamp: updated_date,
                                             device_conf: null,
                                             contest: []
                                         };
                                         _.map(contest_docs, contest => {
-                                            if (moment(moment(contest.updated.date).format("DD-MM-YYYY hh:mm:s"), moment.ISO_8601).isAfter(result.updated_timestamp))
-                                                result.updated_timestamp = moment(contest.updated.date).format("DD-MM-YYYY hh:mm:s");
+                                            updated_date = moment(new Date(contest.updated.date.toString()), "DD-MM-YYYY HH:mm:ss");
+                                            if (updated_date.isAfter(result.updated_timestamp)) result.updated_timestamp = updated_date;
                                             result.contest.push({
-                                                register_text_pre: contest.register_text.pre,
-                                                register_text_post: contest.register_text.post,
                                                 is_referral_enabled: contest.referral_enabled,
                                                 display_name: contest.display_name,
-                                                contest_id: contest.contest_id
+                                                contest_id: contest.contest_id,
+                                                leaderboard_text: {
+                                                    pre_register: contest.register_text.pre,
+                                                    post_register: contest.register_text.post,
+                                                },
+                                                location: contest.location,
+                                                referral: contest.referral
                                             });
                                         });
 
@@ -62,8 +67,8 @@ class Configuration {
                                             });
                                             return reqired_device;
                                         })();
-                                        if (moment(moment(detail_docs.updated.date).format("DD-MM-YYYY hh:mm:s"), moment.ISO_8601).isAfter(result.updated_timestamp))
-                                            result.updated_timestamp = detail_docs.updated.date;
+                                        updated_date = moment(new Date(detail_docs.updated.date.toString()), "DD-MM-YYYY HH:mm:ss");
+                                        if (updated_date.isAfter(result.updated_timestamp)) result.updated_timestamp = updated_date;
 
                                         resolve({ status: 200, data: { is_valid: true, details: result } });
                                     }

@@ -44,7 +44,7 @@ class Configuration {
                                         _.map(contest_docs, contest => {
                                             updated_date = moment(new Date(contest.updated.date.toString()), "DD-MM-YYYY HH:mm:ss");
                                             if (updated_date.isAfter(result.updated_timestamp)) result.updated_timestamp = updated_date;
-                                            if (contest.referral) {
+                                            if (Object.keys(contest.referral).length > 0) {
                                                 contest.referral["text"] = `<h3>${contest.referral.title}</h3><p>${contest.referral.description}</p>`;
                                                 delete contest.referral.title;
                                                 delete contest.referral.description;

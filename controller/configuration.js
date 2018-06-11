@@ -48,6 +48,7 @@ class Configuration {
                                                 is_referral_enabled: contest.referral_enabled,
                                                 display_name: contest.display_name,
                                                 contest_id: contest.contest_id,
+                                                register_text: "Please register.",
                                                 leaderboard_text: {
                                                     pre_register: contest.register_text.pre,
                                                     post_register: contest.register_text.post,
